@@ -167,7 +167,8 @@ async function getUser() {
   myuser.value = json;
 }
 async function routeAnlat(link) {
-  window.location.href = link + id;
+  router.push({path:link + id})
+ // window.location.href = link + id;
 }
 
 async function routeDinle() {
