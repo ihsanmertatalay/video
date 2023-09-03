@@ -168,6 +168,7 @@ async function getUser() {
 }
 async function routeAnlat(link) {
   router.push({path:link + id})
+  router.go(0)
  // window.location.href = link + id;
 }
 
