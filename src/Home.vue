@@ -168,7 +168,7 @@ async function getUser() {
 }
 async function routeAnlat(link) {
   router.push({path:link + id})
-  router.go(0)
+ // router.go(0)
  // window.location.href = link + id;
 }
 
@@ -176,7 +176,9 @@ async function routeDinle() {
  await getRooms();
 
   if (myRooms.value.length > 0) {
-    window.location.href = "/Dinle/" + id;
+    router.push({path:"/Dinle/" + id})
+   // router.go(0)
+  //  window.location.href = "/Dinle/" + id;
   }
   else{
     $toast.warning("Anlatıcı Odaları Boş", {
