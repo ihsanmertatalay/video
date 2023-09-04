@@ -138,7 +138,7 @@ async function createRoom() {
       anlat: myuser.value.name,
     }),
   });
-  const json = await response.json;
+  const json = await response.json();
 }
 
 async function leaveRoom() {
