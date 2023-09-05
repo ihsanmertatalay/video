@@ -16,7 +16,6 @@
       <h3  style="text-align: end">Anlatan</h3>
       <h3>Dinleyen</h3>
     </div>
-  
     <my-video></my-video>
   </main>
 </template>

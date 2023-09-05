@@ -36,6 +36,10 @@ const router = createRouter({
       path: "/Dinle",
     },
     {
+      component: Dinle,
+      path: "/Dinle/:id",
+    },
+    {
       component: Cevapla,
       path: "/Cevapla",
     },
@@ -43,10 +47,7 @@ const router = createRouter({
       component: Sor,
       path: "/Sor/:id",
     },
-    {
-      component: Dinle,
-      path: "/Dinle/:id",
-    },
+
     {
       component: Cevapla,
       path: "/Cevapla/:id",

@@ -1,4 +1,5 @@
 <template>
+  <button @click="console.log(options);" class="btn">console log</button>
   <div
     id="vidoes"
     class="container"
@@ -103,9 +104,8 @@
 
 <script setup>
 import { ref, computed } from "vue";
-
-import AgoraRTC from "agora-rtc-sdk-ng";
 import { onMounted ,onUnmounted} from "vue";
+import AgoraRTC from "agora-rtc-sdk-ng";
 import { useRouter, useRoute, RouterView } from "vue-router";
 import { useToast } from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';
@@ -154,7 +154,7 @@ let options = {
   // Set the channel name.
   channel: myuser.value.name,
   // Pass your temp token here.
-  token: null,
+  token: "007eJxTYNhqzbfevP2K5YrPT6xWVgt0Le2Zl/nb6s+3QubzfVX5ql8UGBKTU5PNTVJNDcyMzU1MktISTVNME5MNLUxSDNMSTZKM1338ltIQyMjQMI+JkZEBAkF8RoZEBgYAi0ogzA==",
   // Set the user ID.
   uid: myuser.value.name,
 };
@@ -224,9 +224,18 @@ async function startBasicCall() {
       // Play the remote audio track. No need to pass any DOM element.
       channelParameters.remoteAudioTrack.play();
     }
+    
     // Listen for the "user-unpublished" event.
     agoraEngine.on("user-unpublished", (user) => {
       console.log(user.uid + "has left the channel");
+      channelParameters.localAudioTrack.close();
+      channelParameters.localVideoTrack.close();
+      // Remove the containers you created for the local video and remote video.
+      // Leave the channel
+     agoraEngine.leave();
+      console.log("You left the channel");
+      // Refresh the page for reuse
+    
       router.push({ path: "/Home/" + id });
       $toast.warning("Karşı Taraf Görüşmeyi Sonlandırdı", {
         duration: 3500,
@@ -234,9 +243,13 @@ async function startBasicCall() {
 
     });
   });
-  window.onload = function () {
+  async  function wonLoad() {
+
     // Listen to the Join button click event.
     document.getElementById("join").onclick = async function startMeeting() {
+  console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+
+      console.log("join");
       // Join a channel.
       options.channel = myuser.value.name;
       options.uid = myuser.value.name;
@@ -304,16 +317,11 @@ async function startBasicCall() {
       // Refresh the page for reuse
     };
   };
+
+  wonLoad()
 }
 
-// Remove the video stream from the container.
-function removeVideoDiv(elementId) {
-  console.log("Removing " + elementId + "Div");
-  let Div = document.getElementById(elementId);
-  if (Div) {
-    Div.remove();
-  }
-}
+
 
 
 const modalfunction = () => {
@@ -329,6 +337,7 @@ const modalfunction = () => {
   });
 
   document.getElementById("leave").addEventListener("click", function () {
+    console.log("leave");
     document.getElementById("myModal2").style.display = "block";
   });
   document
@@ -345,6 +354,7 @@ const modalfunction = () => {
   });
 };
 onMounted(async () => {
+
   await startBasicCall(); // Wait for startBasicCall to complete
   await getUser(); // Wait for getUser to complete
   await createRoom()

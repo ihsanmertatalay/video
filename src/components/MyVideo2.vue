@@ -101,7 +101,6 @@
 <script setup>
 import { ref, computed } from "vue";
 
-import AgoraRTC from "agora-rtc-sdk-ng";
 import { onMounted ,onUnmounted} from "vue";
 import { useRouter, useRoute, RouterView } from "vue-router";
 
@@ -153,9 +152,9 @@ let options = {
   // Pass your App ID here.
   appId: "acec74e5063744bfa5d5ac184d1fa4b3",
   // Set the channel name.
-  channel:  "0",
+  channel:  "a",
   // Pass your temp token here.
-  token: null,
+  token: "007eJxTYNhqzbfevP2K5YrPT6xWVgt0Le2Zl/nb6s+3QubzfVX5ql8UGBKTU5PNTVJNDcyMzU1MktISTVNME5MNLUxSDNMSTZKM1338ltIQyMjQMI+JkZEBAkF8RoZEBgYAi0ogzA==",
   // Set the user ID.
   uid: "0",
 };
@@ -173,6 +172,8 @@ let channelParameters = {
   remoteUid: null,
 };
 async function startBasicCall() {
+  const AgoraRTC = await import('agora-rtc-sdk-ng');
+
   // Create an instance of the Agora Engine
   const agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp9" });
   // Dynamically create a container in the form of a DIV element to play the remote video track.
@@ -228,10 +229,18 @@ async function startBasicCall() {
       $toast.warning("Karşı Taraf Görüşmeyi Sonlandırdı", {
         duration: 3500,
       });
+      channelParameters.localAudioTrack.close();
+      channelParameters.localVideoTrack.close();
+      // Remove the containers you created for the local video and remote video.
+      // Leave the channel
+     agoraEngine.leave();
+      console.log("You left the channel");
+      // Refresh the page for reuse
+    
       console.log(user.uid + "has left the channel");
     });
   });
-  window.onload = function () {
+  async function wonLoad() {
     // Listen to the Join button click event.
     document.getElementById("join").onclick = async function startMeeting() {
       // Join a channel.
@@ -301,6 +310,7 @@ async function startBasicCall() {
       // Refresh the page for reuse
     };
   };
+  wonLoad()
 }
 
 // Remove the video stream from the container.
