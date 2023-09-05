@@ -103,7 +103,6 @@ import { ref, computed } from "vue";
 
 import { onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute, RouterView } from "vue-router";
-import Room from "../../../server/db/emptyroom";
 
 const router = useRouter();
 const route = useRoute();
