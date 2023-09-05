@@ -1,5 +1,7 @@
 <template>
-  <button @click="console.log(options);" class="btn">console log</button>
+  <!--
+      <button @click="console.log();" class="btn">console log</button>
+  -->
   <div
     id="vidoes"
     class="container"
@@ -109,18 +111,19 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 import { useRouter, useRoute, RouterView } from "vue-router";
 import { useToast } from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';
+import  {RtcTokenBuilder, RtmTokenBuilder, RtcRole, RtmRole} from 'agora-token'
 const $toast = useToast();
 
 const router = useRouter();
 const route = useRoute();
 const { id } = route.params;
-const Apiurl = "https://anlat-iake.onrender.com";
+const Apiurl = "http://localhost:3000";
 const waiting = ref(true)
 
 const myuser = ref({
   name: "",
 });
-
+const myToken = ref("")
 
 async function getUser() {
   const response = await fetch(Apiurl + "/user/" + id);
@@ -148,13 +151,34 @@ async function leaveRoom() {
 
 }
 
+async function getToken() {
+  const response = await fetch(Apiurl + "/token");
+  const json = await response.json();
+  myToken.value = json;
+}
+async function getToken2(name,channel) {
+  const data = { name , channel }; // Create an object with the "name" property
+  
+  const response = await fetch(Apiurl + "/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json", // Specify the content type as JSON
+    },
+    body: JSON.stringify(data), // Convert the data object to a JSON string
+  });
+  
+  const json = await response.json();
+  myToken.value =  json;
+  return myToken.value
+}
+
 let options = {
   // Pass your App ID here.
   appId: "acec74e5063744bfa5d5ac184d1fa4b3",
   // Set the channel name.
   channel: myuser.value.name,
   // Pass your temp token here.
-  token: "007eJxTYNhqzbfevP2K5YrPT6xWVgt0Le2Zl/nb6s+3QubzfVX5ql8UGBKTU5PNTVJNDcyMzU1MktISTVNME5MNLUxSDNMSTZKM1338ltIQyMjQMI+JkZEBAkF8RoZEBgYAi0ogzA==",
+  token: myToken.value,
   // Set the user ID.
   uid: myuser.value.name,
 };
@@ -252,7 +276,8 @@ async function startBasicCall() {
       console.log("join");
       // Join a channel.
       options.channel = myuser.value.name;
-      options.uid = myuser.value.name;
+      options.uid = myuser.value.name ;
+      options.token = myToken.value
 
       await agoraEngine.join(
         options.appId,
@@ -281,6 +306,7 @@ async function startBasicCall() {
       // Join a channel.
       options.channel = myuser.value.name;
       options.uid = myuser.value.name;
+      options.token = myToken.value
 
       await agoraEngine.join(
         options.appId,
@@ -353,11 +379,17 @@ const modalfunction = () => {
     document.getElementById("myModal2").style.display = "none";
   });
 };
-onMounted(async () => {
 
-  await startBasicCall(); // Wait for startBasicCall to complete
+
+
+
+onMounted(async () => {
   await getUser(); // Wait for getUser to complete
   await createRoom()
+  await  getToken2(myuser.value.name,myuser.value.name)   
+  console.log(myToken.value);
+
+  await startBasicCall(); // Wait for startBasicCall to complete
   await modalfunction(); // Wait for modalfunction to complete
 });
 

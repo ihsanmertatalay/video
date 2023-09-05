@@ -101,60 +101,62 @@
 <script setup>
 import { ref, computed } from "vue";
 
-import { onMounted ,onUnmounted} from "vue";
+import { onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute, RouterView } from "vue-router";
+import Room from "../../../server/db/emptyroom";
 
 const router = useRouter();
 const route = useRoute();
 const { id } = route.params;
-const Apiurl = "https://anlat-iake.onrender.com";
+const Apiurl = "http://localhost:3000";
 
-const myRooms =ref([])
+const myRooms = ref([]);
 const myuser = ref({
   name: "",
 });
-const randomInt = Math.floor(Math.random() * 3);
-const randomString = randomInt.toString();
+const myToken = ref("")
 
 async function getUser() {
   const response = await fetch(Apiurl + "/user/" + id);
   const json = await response.json();
   myuser.value = json;
-}async function getRooms() {
-  const response = await fetch(Apiurl + "/room/" );
+}
+async function getRooms() {
+  const response = await fetch(Apiurl + "/room/");
   const json = await response.json();
   myRooms.value = json;
 }
 
-async function createRoom() {
-  const response = await fetch(Apiurl+ "/room/", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      _id: id,
-      anlat: myuser.value.name,
-    }),
-  });
-  const json = await response.json;
-}
-
 
 async function deleteRoom() {
-  const response = await fetch(Apiurl + "/room/" +  myRooms.value[0]._id, {
+  const response = await fetch(Apiurl + "/room/" + myRooms.value[0]._id, {
     method: "DELETE",
   });
+}
 
+async function getToken2(name,channel) {
+  const data = { name , channel }; // Create an object with the "name" property
+  
+  const response = await fetch(Apiurl + "/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json", // Specify the content type as JSON
+    },
+    body: JSON.stringify(data), // Convert the data object to a JSON string
+  });
+  
+  const json = await response.json();
+  myToken.value =  json;
+  return myToken.value
 }
 
 let options = {
   // Pass your App ID here.
   appId: "acec74e5063744bfa5d5ac184d1fa4b3",
   // Set the channel name.
-  channel:  "a",
+  channel: "a",
   // Pass your temp token here.
-  token: "007eJxTYNhqzbfevP2K5YrPT6xWVgt0Le2Zl/nb6s+3QubzfVX5ql8UGBKTU5PNTVJNDcyMzU1MktISTVNME5MNLUxSDNMSTZKM1338ltIQyMjQMI+JkZEBAkF8RoZEBgYAi0ogzA==",
+  token: myToken.value,
   // Set the user ID.
   uid: "0",
 };
@@ -172,7 +174,7 @@ let channelParameters = {
   remoteUid: null,
 };
 async function startBasicCall() {
-  const AgoraRTC = await import('agora-rtc-sdk-ng');
+  const AgoraRTC = await import("agora-rtc-sdk-ng");
 
   // Create an instance of the Agora Engine
   const agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp9" });
@@ -233,10 +235,10 @@ async function startBasicCall() {
       channelParameters.localVideoTrack.close();
       // Remove the containers you created for the local video and remote video.
       // Leave the channel
-     agoraEngine.leave();
+      agoraEngine.leave();
       console.log("You left the channel");
       // Refresh the page for reuse
-    
+
       console.log(user.uid + "has left the channel");
     });
   });
@@ -246,7 +248,7 @@ async function startBasicCall() {
       // Join a channel.
       options.channel = myRooms.value[0].anlat;
       options.uid = myuser.value.name;
-
+      options.token = myToken.value
       await agoraEngine.join(
         options.appId,
         options.channel,
@@ -273,7 +275,8 @@ async function startBasicCall() {
     document.getElementById("join2").onclick = async function startMeeting() {
       // Join a channel.
       options.channel = myRooms.value[0].anlat;
-      options.uid =  myuser.value.name
+      options.uid = myuser.value.name;
+      options.token = myToken.value
 
       await agoraEngine.join(
         options.appId,
@@ -309,8 +312,8 @@ async function startBasicCall() {
       console.log("You left the channel");
       // Refresh the page for reuse
     };
-  };
-  wonLoad()
+  }
+  wonLoad();
 }
 
 // Remove the video stream from the container.
@@ -321,7 +324,6 @@ function removeVideoDiv(elementId) {
     Div.remove();
   }
 }
-
 
 const modalfunction = () => {
   document.getElementById("myModal").style.display = "block";
@@ -349,15 +351,11 @@ const modalfunction = () => {
   });
 };
 onMounted(async () => {
-  await startBasicCall(); // Wait for startBasicCall to complete
   await getUser(); // Wait for getUser to complete
-  await getRooms()
-  await deleteRoom()
+  await getRooms();
+  await getToken2(myuser.value.name,myRooms.value[0].anlat)
+  await deleteRoom();
+  await startBasicCall(); // Wait for startBasicCall to complete
   await modalfunction(); // Wait for modalfunction to complete
 });
-
-
-
-
-
 </script>
